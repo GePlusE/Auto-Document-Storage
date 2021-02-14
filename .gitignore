@@ -3,20 +3,12 @@
 /workspace.xml
 
 # Custom ignored files
-*.csv
-.DS_Store
-RUN_Main
-functions.pyc
-RUN_Main.app/
 test*.txt
-LogFile.txt
 TO-DO.txt
 test*.py
 test*.json
-client_secrets.json
-credentials.json
-mycreds.json
-player_dim*.json
+credentials*
+
 
 ############## BEST PRACTICE .gitignore from https://github.com/github/gitignore
 # Byte-compiled / optimized / DLL files
