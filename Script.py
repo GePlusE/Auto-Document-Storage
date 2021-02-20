@@ -21,40 +21,44 @@ def detect_files(path=directory_to_clean):
 def rename_and_move(
     origin_filename, origin_path=directory_to_clean, target_path=target_directory
 ):
-    # create new file name
-    file_name, file_type = os.path.splitext(origin_filename)
-    file_path = os.path.join(origin_path, origin_filename)
-    file_prefix = file_name.split("__")[0]
-
-    date = datetime.today().strftime("%Y-%m-%d")
-    if len(file_name.split("__")) == 3:
-        target_name = date + " " + file_name.split("__")[1]
+    # check if valid origin_filename
+    if "__" not in origin_filename:
+        pass
     else:
-        target_name = date + " " + file_name.split("__")[-1]
+        # create new file name
+        file_name, file_type = os.path.splitext(origin_filename)
+        file_path = os.path.join(origin_path, origin_filename)
+        file_prefix = file_name.split("__")[0]
 
-    # create target directory if neccessary
-    directory = os.path.join(target_path, file_prefix)
-    Path(directory).mkdir(parents=True, exist_ok=True)
+        date = datetime.today().strftime("%Y-%m-%d")
+        if len(file_name.split("__")) == 3:
+            target_name = date + " " + file_name.split("__")[1]
+        else:
+            target_name = date + " " + file_name.split("__")[-1]
 
-    # move file
-    full_origin = os.path.join(origin_path, file_name + file_type)
-    full_target = os.path.join(target_path, file_prefix, target_name + file_type)
+        # create target directory if neccessary
+        directory = os.path.join(target_path, file_prefix)
+        Path(directory).mkdir(parents=True, exist_ok=True)
 
-    os.rename(full_origin, full_target)
+        # move file
+        full_origin = os.path.join(origin_path, file_name + file_type)
+        full_target = os.path.join(target_path, file_prefix, target_name + file_type)
 
-    print("#" * 30)
-    print("file_name: " + file_name)
-    print("file_type: " + file_type)
-    print("file_path: " + file_path)
-    print("file_prefix: " + file_prefix)
-    print("")
-    print("target_name: " + target_name)
-    print("target_path: " + directory)
-    print("")
-    print("origin: " + full_origin)
-    print("new_path: " + full_target)
+        os.rename(full_origin, full_target)
 
-    pass
+        print("#" * 30)
+        print("file_name: " + file_name)
+        print("file_type: " + file_type)
+        print("file_path: " + file_path)
+        print("file_prefix: " + file_prefix)
+        print("")
+        print("target_name: " + target_name)
+        print("target_path: " + directory)
+        print("")
+        print("origin: " + full_origin)
+        print("new_path: " + full_target)
+
+        pass
 
 
 for i in detect_files():
