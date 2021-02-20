@@ -28,7 +28,8 @@ def rename_and_move(
         # create new file name
         file_name, file_type = os.path.splitext(origin_filename)
         file_path = os.path.join(origin_path, origin_filename)
-        file_prefix = file_name.split("__")[0]
+        file_prefix = file_name.split("__")[0].capitalize()
+        file_incremental = int(0)
 
         date = datetime.today().strftime("%Y-%m-%d")
         if len(file_name.split("__")) == 3:
@@ -40,23 +41,33 @@ def rename_and_move(
         directory = os.path.join(target_path, file_prefix)
         Path(directory).mkdir(parents=True, exist_ok=True)
 
-        # move file
+        # create full paths
         full_origin = os.path.join(origin_path, file_name + file_type)
         full_target = os.path.join(target_path, file_prefix, target_name + file_type)
 
+        # check if file exists and increment it if neccessary
+        while os.path.exists(full_target):
+            file_incremental += 1
+            full_target = os.path.join(
+                target_path,
+                file_prefix,
+                target_name + "_" + str(file_incremental) + file_type,
+            )
+
+        # move file to target directory
         os.rename(full_origin, full_target)
 
-        print("#" * 30)
-        print("file_name: " + file_name)
-        print("file_type: " + file_type)
-        print("file_path: " + file_path)
-        print("file_prefix: " + file_prefix)
-        print("")
-        print("target_name: " + target_name)
-        print("target_path: " + directory)
-        print("")
-        print("origin: " + full_origin)
-        print("new_path: " + full_target)
+        # print("#" * 30)
+        # print("file_name: " + file_name)
+        # print("file_type: " + file_type)
+        # print("file_path: " + file_path)
+        # print("file_prefix: " + file_prefix)
+        # print("")
+        # print("target_name: " + target_name)
+        # print("target_path: " + directory)
+        # print("")
+        # print("origin: " + full_origin)
+        # print("new_path: " + full_target)
 
         pass
 
