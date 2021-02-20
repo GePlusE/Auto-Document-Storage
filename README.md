@@ -9,5 +9,5 @@ Automatically detects new PDFs in a specific directory, finds or creates the dir
 ```python
 directory_to_clean = "path/to/directory"
 target_directory = "path/to/target/directory"
-types_to_ignore = [".DS_Store"] # append list with your own types which should be ignored
+types_to_ignore = [".DS_Store"] # append list with your own data types which should be ignored
 ```
