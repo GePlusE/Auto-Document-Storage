@@ -57,20 +57,10 @@ def rename_and_move(
         # move file to target directory
         os.rename(full_origin, full_target)
 
-        # print("#" * 30)
-        # print("file_name: " + file_name)
-        # print("file_type: " + file_type)
-        # print("file_path: " + file_path)
-        # print("file_prefix: " + file_prefix)
-        # print("")
-        # print("target_name: " + target_name)
-        # print("target_path: " + directory)
-        # print("")
-        # print("origin: " + full_origin)
-        # print("new_path: " + full_target)
 
-        pass
+def script():
+    for i in detect_files():
+        rename_and_move(i)
 
 
-for i in detect_files():
-    rename_and_move(i)
+script()
