@@ -1,5 +1,6 @@
 import os
 import credentials as creds
+from datetime import datetime
 from time import sleep
 
 directory_to_clean = creds.directory_to_clean
@@ -18,8 +19,27 @@ def detect_files(path=directory_to_clean):
 def rename_and_move(
     origin_filename, origin_path=directory_to_clean, target_path=target_directory
 ):
+    file_name, file_type = os.path.splitext(origin_filename)
+    file_path = os.path.join(origin_path, origin_filename)
+    file_prefix = file_name.split("__")[0]
 
+    date = datetime.today().strftime("%Y-%m-%d")
+    if len(file_name.split("__")) == 3:
+        target_name = date + " " + file_name.split("__")[1] + " "
+    else:
+        target_name = date + " " + file_name.split("__")[-1]
+
+    print("#" * 30)
+    print("file_name: " + file_name)
+    print("file_type: " + file_type)
+    print("file_path: " + file_path)
+    print("file_prefix: " + file_prefix)
+    print("")
+    print("target_name: " + target_name)
+    print("target_path: " + target_path)
+    print(len(file_name.split("__")))
     pass
 
 
-rename_files()
+for i in detect_files():
+    rename_and_move(i)
