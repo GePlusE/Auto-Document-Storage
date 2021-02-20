@@ -1,7 +1,9 @@
 import os
 import credentials as creds
+
 from datetime import datetime
 from time import sleep
+from pathlib import Path
 
 directory_to_clean = creds.directory_to_clean
 target_directory = creds.target_directory
@@ -19,15 +21,26 @@ def detect_files(path=directory_to_clean):
 def rename_and_move(
     origin_filename, origin_path=directory_to_clean, target_path=target_directory
 ):
+    # create new file name
     file_name, file_type = os.path.splitext(origin_filename)
     file_path = os.path.join(origin_path, origin_filename)
     file_prefix = file_name.split("__")[0]
 
     date = datetime.today().strftime("%Y-%m-%d")
     if len(file_name.split("__")) == 3:
-        target_name = date + " " + file_name.split("__")[1] + " "
+        target_name = date + " " + file_name.split("__")[1]
     else:
         target_name = date + " " + file_name.split("__")[-1]
+
+    # create target directory if neccessary
+    directory = os.path.join(target_path, file_prefix)
+    Path(directory).mkdir(parents=True, exist_ok=True)
+
+    # move file
+    full_origin = os.path.join(origin_path, file_name + file_type)
+    full_target = os.path.join(target_path, file_prefix, target_name + file_type)
+
+    os.rename(full_origin, full_target)
 
     print("#" * 30)
     print("file_name: " + file_name)
@@ -36,8 +49,11 @@ def rename_and_move(
     print("file_prefix: " + file_prefix)
     print("")
     print("target_name: " + target_name)
-    print("target_path: " + target_path)
-    print(len(file_name.split("__")))
+    print("target_path: " + directory)
+    print("")
+    print("origin: " + full_origin)
+    print("new_path: " + full_target)
+
     pass
 
 
