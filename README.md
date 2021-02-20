@@ -1,8 +1,8 @@
 # Auto-Document-Storage
-Automatically detect new PDFs in a specific folder, find the correct folder for the PDF, rename it and save it to the folder.
+Automatically detects new PDFs in a specific directory, finds or creates the directory for the file, renames it and saves it to the target directory.
 
 ### Format for credentials.py
-```
+```python
 directory_to_clean = "path/to/directory"
 target_directory = "path/to/target/directory"
 ```
