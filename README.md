@@ -3,7 +3,8 @@ Automatically detects new PDFs in a specific directory, finds or creates the dir
 
 ### How to:
 - Use a prefix separated by "__" (two underscores) infront of a files name as the target directory's name (e.g., ```FOLDER__Document Name.pdf```). Ths script will use the prefix automatically as the name of the target directory.
-- Usa a second prefix spearated by another pair of underscores to change the name of the file (e.g., ```FOLDER__NEWNAME__Documents Name.pdf``` will change to ```YYYY-MM-DD NEWNAME.pdf```). If you do not use a second pair of underscores the script will not change the name of the file, but will add the current date as prefix.
+- Use a second prefix spearated by another pair of underscores to change the name of the file (e.g., ```FOLDER__NEWNAME__Documents Name.pdf``` will change to ```YYYY-MM-DD NEWNAME.pdf```). If you do not use a second pair of underscores the script will not change the name of the file, but will add the current date as prefix.
+- **[Optional]** Set up a cronjob to run the script automatically (e.g., every hour or with every reboot).
 
 ### Format for credentials.py
 ```python
