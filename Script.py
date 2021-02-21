@@ -1,10 +1,26 @@
 #!/usr/bin/python3
 import os
 import credentials as creds
+import logging
 
 from datetime import datetime
 from time import sleep
 from pathlib import Path
+
+
+############################ Logging Settings ############################
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.INFO)
+
+formatter = logging.Formatter("%(asctime)s %(levelname)s: %(message)s")
+# get formats from https://docs.python.org/3/library/logging.html#logrecord-attributes
+
+file_handler = logging.FileHandler("LogFile.log")
+file_handler.setFormatter(formatter)
+
+logger.addHandler(file_handler)
+##########################################################################
+
 
 directory_to_clean = creds.directory_to_clean
 target_directory = creds.target_directory
@@ -57,6 +73,9 @@ def rename_and_move(
 
         # move file to target directory
         os.rename(full_origin, full_target)
+
+        # logging
+        logger.info(f"Moved {full_origin}    ->    {full_target}")
 
 
 def script():
