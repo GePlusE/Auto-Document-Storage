@@ -43,12 +43,22 @@ def rename_and_move(
         pass
     else:
         # create new file name
+        file_path = os.path.join(origin_path, origin_filename)
         file_name, file_type = os.path.splitext(origin_filename)
         file_path = os.path.join(origin_path, origin_filename)
         file_prefix = file_name.split("__")[0].capitalize()
         file_incremental = int(0)
+        file_cdate = datetime.fromtimestamp(os.path.getctime(file_path)).strftime(
+            "%Y-%m-%d %I:%M:%S"
+        )  # create date
+        file_mdate = datetime.fromtimestamp(os.path.getmtime(file_path)).strftime(
+            "%Y-%m-%d %I:%M:%S"
+        )  # last modified date
+        file_adate = datetime.fromtimestamp(os.path.getatime(file_path)).strftime(
+            "%Y-%m-%d %I:%M:%S"
+        )  # last accessed date
 
-        date = datetime.today().strftime("%Y-%m-%d")
+        date = file_mdate
         if len(file_name.split("__")) == 3:
             target_name = date + " " + file_name.split("__")[1]
         else:
@@ -80,7 +90,7 @@ def rename_and_move(
 
 def script():
     # add sleep to wait for downloads in directory_to_clean
-    sleep(20)
+    # sleep(20)
 
     # loop through files
     for i in detect_files():
