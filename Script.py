@@ -49,13 +49,13 @@ def rename_and_move(
         file_prefix = file_name.split("__")[0].capitalize()
         file_incremental = int(0)
         file_cdate = datetime.fromtimestamp(os.path.getctime(file_path)).strftime(
-            "%Y-%m-%d %I:%M:%S"
+            "%Y-%m-%d"
         )  # create date
         file_mdate = datetime.fromtimestamp(os.path.getmtime(file_path)).strftime(
-            "%Y-%m-%d %I:%M:%S"
+            "%Y-%m-%d"
         )  # last modified date
         file_adate = datetime.fromtimestamp(os.path.getatime(file_path)).strftime(
-            "%Y-%m-%d %I:%M:%S"
+            "%Y-%m-%d"
         )  # last accessed date
 
         date = file_mdate
