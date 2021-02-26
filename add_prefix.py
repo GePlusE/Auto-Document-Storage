@@ -18,42 +18,47 @@ def detect_files(path):
 
 
 def rename(origin_filename, path, prefix):
-    # create new file name
-    file_path = os.path.join(path, origin_filename)
-    file_name, file_type = os.path.splitext(origin_filename)
-    file_path = os.path.join(path, origin_filename)
-    file_prefix = prefix.capitalize()
-    file_incremental = int(0)
-    file_cdate = datetime.fromtimestamp(os.path.getctime(file_path)).strftime(
-        "%Y-%m-%d"
-    )  # create date
-    file_mdate = datetime.fromtimestamp(os.path.getmtime(file_path)).strftime(
-        "%Y-%m-%d"
-    )  # last modified date
-    file_adate = datetime.fromtimestamp(os.path.getatime(file_path)).strftime(
-        "%Y-%m-%d"
-    )  # last accessed date
-
-    date = file_mdate
-    if len(file_name.split("__")) == 3:
-        target_name = date + " " + file_name.split("__")[1]
+    if origin_filename == ".DS_Store":
+        pass
     else:
-        target_name = date + " " + file_name.split("__")[-1]
+        # create new file name
+        file_path = os.path.join(path, origin_filename)
+        file_name, file_type = os.path.splitext(origin_filename)
+        file_path = os.path.join(path, origin_filename)
+        file_prefix = prefix.capitalize()
+        file_incremental = int(0)
+        file_cdate = datetime.fromtimestamp(os.path.getctime(file_path)).strftime(
+            "%Y-%m-%d"
+        )  # create date
+        file_mdate = datetime.fromtimestamp(os.path.getmtime(file_path)).strftime(
+            "%Y-%m-%d"
+        )  # last modified date
+        file_adate = datetime.fromtimestamp(os.path.getatime(file_path)).strftime(
+            "%Y-%m-%d"
+        )  # last accessed date
 
-    # create full paths
-    full_origin = os.path.join(path, file_name + file_type)
-    full_target = os.path.join(path, file_prefix + "__" + file_name + file_type)
+        date = file_mdate
+        if len(file_name.split("__")) == 3:
+            target_name = date + " " + file_name.split("__")[1]
+        else:
+            target_name = date + " " + file_name.split("__")[-1]
 
-    # check if file exists and increment it if neccessary
-    while os.path.exists(full_target):
-        file_incremental += 1
-        full_target = os.path.join(
-            path, file_prefix, target_name + "_" + str(file_incremental) + file_type,
-        )
+        # create full paths
+        full_origin = os.path.join(path, file_name + file_type)
+        full_target = os.path.join(path, file_prefix + "__" + file_name + file_type)
 
-    # move file to target directory
-    os.rename(full_origin, full_target)
-    # print(full_origin, full_target)
+        # check if file exists and increment it if neccessary
+        while os.path.exists(full_target):
+            file_incremental += 1
+            full_target = os.path.join(
+                path,
+                file_prefix,
+                target_name + "_" + str(file_incremental) + file_type,
+            )
+
+        # move file to target directory
+        os.rename(full_origin, full_target)
+        # print(full_origin, full_target)
 
 
 def add_prefix_to_files(prefix, path):
@@ -62,6 +67,6 @@ def add_prefix_to_files(prefix, path):
         rename(i, path, prefix)
 
 
-sleep(20)
-add_prefix_to_files("SSKM", "/Users/gepluse/Desktop/Neuer Ordner")
+sleep(5)
+add_prefix_to_files("Consorsbank", "/Users/gepluse/Desktop/Neuer Ordner")
 
