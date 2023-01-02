@@ -65,8 +65,7 @@ def add_prefix_to_files(prefix, path):
     f_list = detect_files(path)
     for i in f_list:
         rename(i, path, prefix)
+    print(f"DONE: added {prefix} as prefix for all files in {path}")
 
 
-sleep(5)
-add_prefix_to_files("Consorsbank", "/Users/gepluse/Desktop/Neuer Ordner")
-
+# add_prefix_to_files("Consorsbank", "/Users/gepluse/Downloads")
