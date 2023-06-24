@@ -68,4 +68,6 @@ def add_prefix_to_files(prefix, path):
     print(f"DONE: added {prefix} as prefix for all files in {path}")
 
 
-# add_prefix_to_files("Consorsbank", "/Users/gepluse/Downloads")
+add_prefix_to_files(
+    "CONSORS", "/Users/gepluse/Downloads/sammeldownload_20230210_194422"
+)
