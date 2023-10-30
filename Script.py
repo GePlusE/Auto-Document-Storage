@@ -90,7 +90,7 @@ def rename_and_move(
 
 def script():
     # add sleep to wait for downloads in directory_to_clean
-    sleep(60)
+    sleep(60 * 5)
 
     # loop through files
     for i in detect_files():
