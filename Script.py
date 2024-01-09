@@ -1,4 +1,4 @@
-#!/usr/bin/python3
+#!/Library/Frameworks/Python.framework/Versions/3.8/bin/python3
 import os
 import credentials as creds
 import logging
@@ -88,13 +88,14 @@ def rename_and_move(
         logger.info(f"Moved {full_origin}    ->    {full_target}")
 
 
-def script():
+def main():
     # add sleep to wait for downloads in directory_to_clean
-    sleep(60 * 5)
+    sleep(10)
 
     # loop through files
     for i in detect_files():
         rename_and_move(i)
 
 
-script()
+if __name__ == "__main__":
+    main()
