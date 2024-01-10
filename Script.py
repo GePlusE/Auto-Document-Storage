@@ -15,7 +15,7 @@ logger.setLevel(logging.INFO)
 formatter = logging.Formatter("%(asctime)s %(levelname)s: %(message)s")
 # get formats from https://docs.python.org/3/library/logging.html#logrecord-attributes
 
-file_handler = logging.FileHandler("LogFile.log")
+file_handler = logging.FileHandler("/Users/gepluse/CodeProjects/Auto-Document-Storage/LogFile.log")
 file_handler.setFormatter(formatter)
 
 logger.addHandler(file_handler)
