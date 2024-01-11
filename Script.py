@@ -58,7 +58,7 @@ def rename_and_move(
             "%Y-%m-%d"
         )  # last accessed date
 
-        date = file_mdate
+        date = min(file_mdate,file_cdate,file_adate) # use the min date of all three dates
         if len(file_name.split("__")) == 3:
             target_name = date + " " + file_name.split("__")[1]
         else:

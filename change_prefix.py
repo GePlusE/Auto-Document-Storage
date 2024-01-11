@@ -67,7 +67,43 @@ def add_prefix_to_files(prefix, path):
         rename(i, path, prefix)
     print(f"DONE: added {prefix} as prefix for all files in {path}")
 
+import os
+
+def remove_prefix_from_files(x, path):
+    # Ensure path is a valid directory
+    if not os.path.isdir(path):
+        print("The specified path is not a valid directory.")
+        return
+
+    # Iterate over all files in the directory
+    for filename in os.listdir(path):
+        # Construct full file path
+        file_path = os.path.join(path, filename)
+
+        # Skip directories
+        if os.path.isdir(file_path):
+            continue
+
+        # Check if filename length is greater than x
+        if len(filename) > x:
+            # New filename without the first x characters
+            new_filename = filename[x:]
+            new_file_path = os.path.join(path, new_filename)
+
+            # Rename the file
+            os.rename(file_path, new_file_path)
+            print(f"Renamed {filename} to {new_filename}")
+
+        else:
+            print(f"Skipped {filename}: filename too short to remove {x} characters.")
+
+    print(f"DONE: Removed first {x} characters from filenames in {path}")
+
+
+#remove_prefix_from_files(2, '/Users/gepluse/Downloads/Consors')
+
+
 
 add_prefix_to_files(
-    "CONSORS", "/Users/gepluse/Downloads/sammeldownload_20230210_194422"
+    "Consorsbank", "/Users/gepluse/Downloads/Consors"
 )
