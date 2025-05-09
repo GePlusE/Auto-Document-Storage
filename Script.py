@@ -1,4 +1,4 @@
-#!/Library/Frameworks/Python.framework/Versions/3.8/bin/python3
+#!/usr/bin/env python3
 import os
 import credentials as creds
 import logging
@@ -15,7 +15,9 @@ logger.setLevel(logging.INFO)
 formatter = logging.Formatter("%(asctime)s %(levelname)s: %(message)s")
 # get formats from https://docs.python.org/3/library/logging.html#logrecord-attributes
 
-file_handler = logging.FileHandler("/Users/gepluse/CodeProjects/Auto-Document-Storage/LogFile.log")
+file_handler = logging.FileHandler(
+    "/Users/gepluse/CodeProjects/Auto-Document-Storage/LogFile.log"
+)
 file_handler.setFormatter(formatter)
 
 logger.addHandler(file_handler)
@@ -58,7 +60,9 @@ def rename_and_move(
             "%Y-%m-%d"
         )  # last accessed date
 
-        date = min(file_mdate,file_cdate,file_adate) # use the min date of all three dates
+        date = min(
+            file_mdate, file_cdate, file_adate
+        )  # use the min date of all three dates
         if len(file_name.split("__")) == 3:
             target_name = date + " " + file_name.split("__")[1]
         else:
@@ -82,7 +86,11 @@ def rename_and_move(
             )
 
         # move file to target directory
-        os.rename(full_origin, full_target)
+        try:
+            os.rename(full_origin, full_target)
+            logger.info(f"Moved {full_origin} -> {full_target}")
+        except Exception as e:
+            logger.error(f"Failed to move {origin_filename}: {e}")
 
         # logging
         logger.info(f"Moved {full_origin}    ->    {full_target}")
