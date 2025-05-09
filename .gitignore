@@ -8,6 +8,7 @@ TO-DO.txt
 test*.py
 test*.json
 credentials*
+*.sh
 
 
 ############## BEST PRACTICE .gitignore from https://github.com/github/gitignore
