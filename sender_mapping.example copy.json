@@ -1,11 +1,47 @@
 {
-  "folders": {
-    "Deutsche Rentenversicherung": "DRV",
-    "Telekom Deutschland GmbH": "Telekom"
+  "simple": {
+    "_comment": "Fictional examples only. Replace keys/values with your own senders and target buckets.",
+    "Example Bank AG": "finance/bank",
+    "ACME Insurance GmbH": "finance/insurance",
+    "City Utilities (Fictional)": "household/utilities",
+    "Example Telecom": "household/telecom",
+    "Example Health Insurance": "health/insurance",
+    "ACME Online Shop": "shopping/invoices",
+    "Fictional Employer Payroll": "work/payroll",
+    "Example Tax Office": "tax"
   },
-  "synonyms": {
-    "Deutsche Rentenversicherung Bund": "Deutsche Rentenversicherung",
-    "Deutsche Telekom": "Telekom Deutschland GmbH",
-    "Telekom": "Telekom Deutschland GmbH"
+  "extended": {
+    "_comment": "Fictional examples only. Demonstrates match strategies.",
+    "rules": [
+      {
+        "match": {
+          "type": "exact",
+          "value": "Example Bank AG"
+        },
+        "target": "finance/bank"
+      },
+      {
+        "match": {
+          "type": "contains",
+          "value": "Insurance"
+        },
+        "target": "finance/insurance"
+      },
+      {
+        "match": {
+          "type": "contains",
+          "value": "Telecom"
+        },
+        "target": "household/telecom"
+      },
+      {
+        "match": {
+          "type": "regex",
+          "value": "(?i)payroll|salary|payslip"
+        },
+        "target": "work/payroll"
+      }
+    ],
+    "default_target": "uncategorized"
   }
 }

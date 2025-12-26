@@ -1,30 +1,45 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN"
+  "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
-<dict>
-  <key>Label</key>
-  <string>com.user.pdf_filer</string>
-
-  <key>ProgramArguments</key>
-  <array>
-    <string>/Users/<USER>/path/to/venv/bin/pdf-filer</string>
-    <string>run</string>
-    <string>--config</string>
-    <string>/Users/<USER>/.pdf_filer/config.yaml</string>
-  </array>
-
-  <key>StartCalendarInterval</key>
   <dict>
-    <key>Hour</key><integer>2</integer>
-    <key>Minute</key><integer>30</integer>
+    <!-- Change this label to something unique on your machine -->
+    <key>Label</key>
+    <string>com.example.auto-document-storage</string>
+
+    <!-- Run when the user logs in -->
+    <key>RunAtLoad</key>
+    <true/>
+
+    <!-- Optional: run every 10 minutes (adjust as needed) -->
+    <key>StartInterval</key>
+    <integer>600</integer>
+
+    <!-- IMPORTANT: Replace USERNAME and paths below -->
+    <key>ProgramArguments</key>
+    <array>
+      <string>/Users/USERNAME/path/to/Auto-Document-Storage/.venv/bin/python</string>
+      <string>/Users/USERNAME/path/to/Auto-Document-Storage/src/auto_document_storage/main.py</string>
+      <string>--config</string>
+      <string>/Users/USERNAME/path/to/Auto-Document-Storage/config.yaml</string>
+    </array>
+
+    <!-- Ensure relative paths behave -->
+    <key>WorkingDirectory</key>
+    <string>/Users/USERNAME/path/to/Auto-Document-Storage</string>
+
+    <!-- Put logs somewhere outside the repo -->
+    <key>StandardOutPath</key>
+    <string>/Users/USERNAME/Library/Logs/AutoDocumentStorage/stdout.log</string>
+
+    <key>StandardErrorPath</key>
+    <string>/Users/USERNAME/Library/Logs/AutoDocumentStorage/stderr.log</string>
+
+    <!-- Optional: environment variables -->
+    <key>EnvironmentVariables</key>
+    <dict>
+      <key>PYTHONUNBUFFERED</key>
+      <string>1</string>
+    </dict>
   </dict>
-
-  <key>StandardOutPath</key>
-  <string>/Users/<USER>/.pdf_filer/logs/launchd.out.log</string>
-  <key>StandardErrorPath</key>
-  <string>/Users/<USER>/.pdf_filer/logs/launchd.err.log</string>
-
-  <key>RunAtLoad</key>
-  <true/>
-</dict>
 </plist>

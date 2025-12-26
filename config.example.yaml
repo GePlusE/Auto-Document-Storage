@@ -1,7 +1,7 @@
 paths:
-  input_dir: "/Users/<USER>/Ablage"
-  documents_dir: "/Users/<USER>/Dokumente"
-  fallback_dir: "/Users/<USER>/Dokumente/_Unklar"
+  input_dir: "/Users/<USER>/input_folder"
+  documents_dir: "/Users/<USER>/output_folder"
+  fallback_dir: "/Users/<USER>/output_folder/_unsure"
   db_path: "/Users/<USER>/.pdf_filer/pdf_filer.db"
   logs_dir: "/Users/<USER>/.pdf_filer/logs"
   mapping_json: "/Users/<USER>/.pdf_filer/sender_mapping.json"
