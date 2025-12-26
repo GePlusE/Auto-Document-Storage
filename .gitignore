@@ -1,8 +1,66 @@
+# ------------------------------
+# Auto-Document-Storage (template)
+# Copy this file to .gitignore or merge into your existing .gitignore
+# Goal: prevent accidental commits of logs, credentials, local data and caches
+# ------------------------------
 
-sender_mapping.json
-/launchd
-.venv
-.pdf_filer
+# Virtual environments
+.venv/
+venv/
+env/
+
+# Local runtime folders / app data
+.pdf_filer/
+data/
+runtime/
+output/
+tmp/
+temp/
+
+# Logs (keep logs OUT of git)
+logs/
+log/
+*.log
+*.out
+*.err
+
+# macOS / editor noise
+.DS_Store
+.vscode/
+.idea/
+
+# Python caches
+__pycache__/
+*.pyc
+*.pyo
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+# Databases / local state
 *.db
-.vscode
-__pycache__
+*.sqlite
+*.sqlite3
+
+# Credentials / secrets / local configs
+.env
+.env.*
+config.yaml
+config.yml
+sender_mapping.json
+sender_mapping.yaml
+sender_mapping.yml
+launchd
+
+# If you use a separate secrets file
+secrets.*
+credentials.*
+tokens.*
+apikeys.*
+
+# Optional: PDF inputs/outputs (uncomment if you keep PDFs near the repo)
+# *.pdf
+# inbox/
+# processed/

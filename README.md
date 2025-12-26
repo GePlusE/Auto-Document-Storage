@@ -14,6 +14,30 @@ Works fully locally using:
 - Safe fallback folder for uncertain classification (`Dokumente/_Unklar`)
 - Stores raw model JSON responses (stage1 + stage2 + final) in SQLite for later analysis
 
+## Requirements
+- macOS (Vision framework via pyobjc)
+- Python 3.10+
+- Ollama installed and running
+
+
+## Privacy & Data Protection
+
+All document processing happens locally on the user's machine.
+
+- OCR uses macOS Vision locally.
+- Classification is sent to Ollama (assumed local, default `http://localhost:11434`).
+
+⚠️ Logs and the SQLite DB may contain filenames, routing decisions, and raw model outputs.
+Treat `~/.pdf_filer/` as sensitive and do not share or upload it.
+Users are responsible for complying with local data protection laws (e.g. GDPR).
+
+### Safety checklist
+- [ ] Keep config/mapping in `~/.pdf_filer/`, not in the repo
+- [ ] Do not commit logs/DB (`gitignore.example` helps)
+- [ ] Keep Ollama local unless you understand the implications
+
+
+
 ## Setup
 
 ### 1) Create venv & install
@@ -34,10 +58,16 @@ ollama pull qwen2.5:3b-instruct
 ```
 Ensure Ollama server is running (default `http://localhost:11434`).
 
+#### Ollama note
+This project assumes Ollama runs locally (default `http://localhost:11434`).
+If you point it to a remote endpoint, document text/sender cues may leave your machine.
+
+
 ### 3) Configure
 Copy and edit:
 - `config.example.yaml` → `~/.pdf_filer/config.yaml`
 - `sender_mapping.example.json` → `~/.pdf_filer/sender_mapping.json`
+
 
 ### 4) Run manually
 ```bash
@@ -75,3 +105,7 @@ To view logs:
 pytest -q
 ```
 
+## Troubleshooting
+- If OCR fails: ensure the PDF is not password-protected and try higher `ocr.dpi`.
+- If Ollama errors: check `ollama serve` and the URL in config.
+- If launchd doesn't run: check logs in `~/.pdf_filer/logs/` and `launchctl list`.
