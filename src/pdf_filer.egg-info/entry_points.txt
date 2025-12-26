@@ -1,0 +1,2 @@
+[console_scripts]
+pdf-filer = pdf_filer.main:main

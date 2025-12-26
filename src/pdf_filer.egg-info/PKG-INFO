@@ -1,3 +1,20 @@
+Metadata-Version: 2.4
+Name: pdf-filer
+Version: 0.1.0
+Summary: Local PDF auto-filing on macOS with Vision OCR + multi-stage Ollama classification + SQLite logging.
+Author: You
+License: MIT
+Requires-Python: >=3.10
+Description-Content-Type: text/markdown
+Requires-Dist: pymupdf>=1.24.0
+Requires-Dist: PyYAML>=6.0.1
+Requires-Dist: requests>=2.31.0
+Requires-Dist: rich>=13.7.0
+Requires-Dist: pyobjc-core>=10.0
+Requires-Dist: pyobjc-framework-Vision>=10.0
+Requires-Dist: pyobjc-framework-Quartz>=10.0
+Requires-Dist: pyobjc-framework-Cocoa>=10.0
+
 # pdf-filer (macOS)
 
 Automates filing scanned PDFs from an input folder ("Ablage") into subfolders under a target folder ("Dokumente").

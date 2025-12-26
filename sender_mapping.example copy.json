@@ -1,0 +1,11 @@
+{
+  "folders": {
+    "Deutsche Rentenversicherung": "DRV",
+    "Telekom Deutschland GmbH": "Telekom"
+  },
+  "synonyms": {
+    "Deutsche Rentenversicherung Bund": "Deutsche Rentenversicherung",
+    "Deutsche Telekom": "Telekom Deutschland GmbH",
+    "Telekom": "Telekom Deutschland GmbH"
+  }
+}

@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+  <key>Label</key>
+  <string>com.user.pdf_filer</string>
+
+  <key>ProgramArguments</key>
+  <array>
+    <string>/Users/<USER>/path/to/venv/bin/pdf-filer</string>
+    <string>run</string>
+    <string>--config</string>
+    <string>/Users/<USER>/.pdf_filer/config.yaml</string>
+  </array>
+
+  <key>StartCalendarInterval</key>
+  <dict>
+    <key>Hour</key><integer>2</integer>
+    <key>Minute</key><integer>30</integer>
+  </dict>
+
+  <key>StandardOutPath</key>
+  <string>/Users/<USER>/.pdf_filer/logs/launchd.out.log</string>
+  <key>StandardErrorPath</key>
+  <string>/Users/<USER>/.pdf_filer/logs/launchd.err.log</string>
+
+  <key>RunAtLoad</key>
+  <true/>
+</dict>
+</plist>

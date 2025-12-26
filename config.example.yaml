@@ -1,0 +1,37 @@
+paths:
+  input_dir: "/Users/<USER>/Ablage"
+  documents_dir: "/Users/<USER>/Dokumente"
+  fallback_dir: "/Users/<USER>/Dokumente/_Unklar"
+  db_path: "/Users/<USER>/.pdf_filer/pdf_filer.db"
+  logs_dir: "/Users/<USER>/.pdf_filer/logs"
+  mapping_json: "/Users/<USER>/.pdf_filer/sender_mapping.json"
+
+ocr:
+  use_vision: true
+  max_pages: 5
+  dpi: 250
+  min_text_chars: 150
+  min_alnum_ratio: 0.35
+
+classification:
+  ollama_host: "http://localhost:11434"
+  stage1_model: "qwen2.5:1.5b-instruct"
+  stage2_model: "qwen2.5:3b-instruct"
+  stage3_model: ""
+  threshold_accept: 0.80
+  threshold_safe_to_file: 0.70
+  temperature: 0.0
+  max_input_chars: 12000
+  require_evidence: true
+  timeout_seconds: 90
+
+mapping:
+  route_unknown_sender_to_fallback: false  # if true, unknown senders go to fallback even with high confidence
+
+renaming:
+  separator: " "
+  collision_suffix_format: "_{n}"
+  max_suffix: 999
+  date_source_priority: ["pdf_meta", "file_birthtime", "mtime", "today"]
+  filename_max_len: 120
+  keep_umlauts: true
