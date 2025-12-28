@@ -64,3 +64,4 @@ apikeys.*
 # *.pdf
 # inbox/
 # processed/
+.DS_Store

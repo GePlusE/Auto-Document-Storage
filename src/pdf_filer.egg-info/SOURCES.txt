@@ -20,6 +20,16 @@ src/pdf_filer.egg-info/dependency_links.txt
 src/pdf_filer.egg-info/entry_points.txt
 src/pdf_filer.egg-info/requires.txt
 src/pdf_filer.egg-info/top_level.txt
+src/pdf_filer/gui/__init__.py
+src/pdf_filer/gui/analyzer.py
+src/pdf_filer/gui/app.py
+src/pdf_filer/gui/diff_dialog.py
+src/pdf_filer/gui/edit_dialog.py
+src/pdf_filer/gui/mapping_editor.py
+src/pdf_filer/gui/preview.py
+src/pdf_filer/gui/state.py
+src/pdf_filer/gui/types.py
+src/pdf_filer/gui/validators.py
 tests/test_mapping.py
 tests/test_naming.py
 tests/test_routing.py

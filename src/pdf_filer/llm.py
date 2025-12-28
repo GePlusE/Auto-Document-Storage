@@ -68,6 +68,7 @@ def build_prompt(extracted_text: str, known_senders: List[str]) -> str:
         - No digits in filename_label. No special characters other than spaces and German letters.
         - If you cannot decide, use "Dokument".
         - Output JSON only. No markdown, no commentary.
+        - Set is_private=true for greeting cards / personal congratulations / private letters not from companies.
 
 
         Known Senders:

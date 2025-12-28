@@ -313,6 +313,9 @@ def main():
     sub = parser.add_subparsers(dest="cmd", required=False)
 
     run_p = sub.add_parser("run", help="Run one processing cycle")
+    gui_p = sub.add_parser("gui", help="Launch GUI for reviewing PDFs")
+    gui_p.add_argument("--config", required=True, help="Path to config.yaml")
+    gui_p.add_argument("--verbose", action="store_true", help="Verbose logging")
 
     run_p.add_argument("--config", required=True, help="Path to config.yaml")
 
@@ -331,8 +334,25 @@ def main():
         args.cmd = "run"
 
     cfg = load_config(Path(args.config))
-    logger = setup_logging(cfg.paths.logs_dir, verbose=bool(args.verbose))
+    logger = setup_logging(
+        cfg.paths.logs_dir, verbose=bool(getattr(args, "verbose", False))
+    )
     console = Console()
+
+    # GUI command
+    if args.cmd == "gui":
+        from .mapping import load_sender_mapping, SenderMapper
+        from .llm import OllamaClient
+        from .gui.app import run_gui
+
+        mapping = load_sender_mapping(cfg.paths.mapping_json)
+        mapper = SenderMapper(mapping)
+        client = OllamaClient(
+            cfg.classification.ollama_host,
+            timeout_seconds=cfg.classification.timeout_seconds,
+        )
+        run_gui(cfg, mapper, client, logger)
+        return
 
     mapping = load_sender_mapping(cfg.paths.mapping_json)
     mapper = SenderMapper(mapping)
