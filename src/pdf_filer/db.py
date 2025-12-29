@@ -23,6 +23,8 @@ CREATE TABLE IF NOT EXISTS documents (
   run_id TEXT NOT NULL,
   input_path TEXT NOT NULL,
   original_filename TEXT NOT NULL,
+  file_fingerprint TEXT,
+  naming_template TEXT,
   file_size_bytes INTEGER,
   file_created_at TEXT,
   pdf_meta_created_at TEXT,
@@ -57,6 +59,8 @@ CREATE TABLE IF NOT EXISTS documents (
 
 CREATE INDEX IF NOT EXISTS idx_documents_run_id ON documents(run_id);
 CREATE INDEX IF NOT EXISTS idx_documents_sender ON documents(final_sender_canonical);
+CREATE INDEX IF NOT EXISTS idx_documents_fingerprint ON documents(file_fingerprint);
+
 """
 
 
@@ -65,6 +69,7 @@ class Database:
         db_path.parent.mkdir(parents=True, exist_ok=True)
         self.db_path = db_path
         self.conn = sqlite3.connect(str(db_path))
+        self.conn.row_factory = sqlite3.Row
         self.conn.execute("PRAGMA journal_mode=WAL;")
         self.conn.execute("PRAGMA synchronous=NORMAL;")
         self.conn.executescript(SCHEMA)
@@ -73,9 +78,20 @@ class Database:
         self._ensure_column("documents", "final_evidence", "TEXT")
         self._ensure_column("documents", "final_notes", "TEXT")
         self._ensure_column("documents", "final_final_filename", "TEXT")
+        self._ensure_column("documents", "file_fingerprint", "TEXT")
         self._ensure_column("documents", "llm_target_folder", "TEXT")
         self._ensure_column("documents", "llm_is_private", "INTEGER")
         self._ensure_column("documents", "llm_folder_reason", "TEXT")
+        self._ensure_column("documents", "naming_template", "TEXT")
+        # Create index after ensuring the column exists (important for old DBs)
+        try:
+            self.conn.execute(
+                "CREATE INDEX IF NOT EXISTS idx_documents_fingerprint ON documents(file_fingerprint)"
+            )
+            self.conn.commit()
+        except Exception:
+            # Non-fatal: cache lookups still work, just slower
+            pass
 
     def close(self):
         try:
@@ -123,3 +139,24 @@ class Database:
         sql = f"INSERT INTO documents({','.join(cols)}) VALUES ({placeholders})"
         self.conn.execute(sql, vals)
         self.conn.commit()
+
+    def get_latest_by_fingerprint(self, fp: str) -> Optional[Dict[str, Any]]:
+        fp = (fp or "").strip()
+        if not fp:
+            return None
+
+        row = self.conn.execute(
+            """
+            SELECT *
+            FROM documents
+            WHERE file_fingerprint = ?
+            ORDER BY id DESC
+            LIMIT 1
+            """,
+            (fp,),
+        ).fetchone()
+
+        if not row:
+            return None
+
+        return dict(row)

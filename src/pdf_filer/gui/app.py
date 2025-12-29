@@ -3,6 +3,8 @@ from __future__ import annotations
 from pathlib import Path
 from typing import List, Optional
 import math
+import datetime as dt
+import json as _json
 
 from PySide6.QtCore import Qt, QSortFilterProxyModel, QSettings, QModelIndex
 from PySide6.QtGui import (
@@ -42,6 +44,8 @@ from .state import SessionState
 from .mapping_editor import MappingEditorDialog
 from .edit_dialog import EditDecisionDialog
 from .diff_dialog import DryRunDiffDialog
+from ..db import Database
+from ..utils import file_fingerprint_sha256
 
 
 class PlanProxyModel(QSortFilterProxyModel):
@@ -96,6 +100,13 @@ class MainWindow(QMainWindow):
         self.logger = logger
         self.state = SessionState(cfg)
 
+        self.db = Database(self.cfg.paths.db_path)
+        self.gui_run_id = dt.datetime.now().strftime("gui-%Y%m%d-%H%M%S")
+        try:
+            self.db.start_run(self.gui_run_id)
+        except Exception:
+            pass
+
         self.settings = QSettings("gepluse", "pdf-filer-gui")
 
         self.setWindowTitle("pdf-filer GUI")
@@ -124,6 +135,7 @@ class MainWindow(QMainWindow):
         # Top controls
         top = QHBoxLayout()
         self.btn_dry = QPushButton("Dry-Run (Analyze)")
+        self.btn_full = QPushButton("Full Analyze")
         self.btn_accept = QPushButton("Accept selected")
         self.btn_reject = QPushButton("Reject selected")
         self.btn_to_fallback = QPushButton(
@@ -140,7 +152,8 @@ class MainWindow(QMainWindow):
         self.chk_sensitive = QCheckBox("Sensitive mode (blur)")
         self.chk_sensitive.setChecked(False)
 
-        self.btn_dry.clicked.connect(self.on_dry_run)
+        self.btn_dry.clicked.connect(lambda: self.on_dry_run(full=False))
+        self.btn_full.clicked.connect(lambda: self.on_dry_run(full=True))
         self.btn_accept.clicked.connect(lambda: self._batch("accept"))
         self.btn_reject.clicked.connect(lambda: self._batch("reject"))
         self.btn_to_fallback.clicked.connect(lambda: self._batch("fallback"))
@@ -151,6 +164,7 @@ class MainWindow(QMainWindow):
         self.chk_sensitive.toggled.connect(self.on_sensitive_toggle)
 
         top.addWidget(self.btn_dry)
+        top.addWidget(self.btn_full)
         top.addWidget(self.btn_accept)
         top.addWidget(self.btn_reject)
         top.addWidget(self.btn_to_fallback)
@@ -318,6 +332,7 @@ class MainWindow(QMainWindow):
             self.restoreState(self.settings.value("state"))
 
         self.table.resizeColumnsToContents()
+        self.load_initial_items()
 
     def closeEvent(self, event):
         self.settings.setValue("geom", self.saveGeometry())
@@ -337,6 +352,11 @@ class MainWindow(QMainWindow):
         except Exception:
             pass
 
+        try:
+            self.db.close()
+        except Exception:
+            pass
+
         super().closeEvent(event)
 
     def on_sensitive_toggle(self, checked: bool):
@@ -352,13 +372,118 @@ class MainWindow(QMainWindow):
         dlg = MappingEditorDialog(self, mapping_path=self.cfg.paths.mapping_json)
         dlg.exec()
 
-    def on_dry_run(self):
+    def persist_item_to_db(self, pdf_path: Path, it):
+        try:
+            fp = file_fingerprint_sha256(pdf_path)
+        except Exception:
+            fp = ""
+
+        row = {
+            "run_id": getattr(self, "gui_run_id", "gui"),
+            "input_path": str(pdf_path),
+            "original_filename": pdf_path.name,
+            "file_fingerprint": fp or None,
+            "naming_template": (it.naming_template or "").strip() or None,
+            "chosen_date_prefix": (it.date_prefix or "").strip() or None,
+            "extraction_method": (it.extraction_method or "").strip() or None,
+            "pages_processed": int(getattr(it, "pages_processed", 0) or 0),
+            "final_sender_canonical": (it.sender or "").strip() or None,
+            "final_confidence": float(getattr(it, "conf_final", 0.0) or 0.0),
+            "final_document_type": (it.document_type or "other").strip(),
+            "final_filename_label": (it.filename_label or "Dokument").strip(),
+            "final_evidence": _json.dumps((it.evidence or [])[:3], ensure_ascii=False),
+            "final_notes": (it.notes or "").strip() or None,
+            "final_target_folder": (
+                it.effective_folder() or it.target_folder or ""
+            ).strip()
+            or None,
+            "final_target_path": (
+                str(it.planned_target_path) if it.planned_target_path else None
+            ),
+            "final_final_filename": (
+                it.planned_target_path.name if it.planned_target_path else None
+            ),
+            "llm_target_folder": (getattr(it, "llm_target_folder", "") or "").strip()
+            or None,
+            "llm_is_private": 1 if bool(getattr(it, "llm_is_private", False)) else 0,
+            "llm_folder_reason": (getattr(it, "llm_folder_reason", "") or "").strip()
+            or None,
+            "processed_at": dt.datetime.now().isoformat(timespec="seconds"),
+            "error": (it.error or "").strip() or None,
+            "routed_to_fallback": (
+                1 if (it.effective_folder() == self.cfg.paths.fallback_dir.name) else 0
+            ),
+            "stage_used": int(getattr(it, "stage_used", 0) or 0),
+        }
+
+        # Leere Keys nicht speichern (optional, aber sauber)
+        row = {k: v for k, v in row.items() if v is not None}
+
+        self.db.insert_document(row)
+
+    def on_dry_run(self, full: bool = False):
         pdfs = list_input_pdfs(self.cfg.paths.input_dir)
+
         items = []
         for p in pdfs:
-            it = analyze_pdf(p, self.cfg, self.mapper, self.client, self.logger)
+            # Check cache first (unless full)
+            cached = None
+            fp = ""
+            if not full:
+                try:
+                    fp = file_fingerprint_sha256(p)
+                    cached = self.db.get_latest_by_fingerprint(fp) if fp else None
+                except Exception:
+                    cached = None
+
+            if cached and not full:
+                it = self.state.make_placeholder_item(p)
+                it.sender = cached.get("final_sender_canonical") or ""
+                it.conf_final = float(cached.get("final_confidence") or 0.0)
+                it.document_type = cached.get("final_document_type") or "other"
+                it.filename_label = cached.get("final_filename_label") or "Dokument"
+                it.notes = cached.get("final_notes") or ""
+                it.target_folder = cached.get("final_target_folder") or ""
+                try:
+                    pth = cached.get("final_target_path") or ""
+                    it.planned_target_path = Path(pth) if pth else None
+                except Exception:
+                    it.planned_target_path = None
+
+                try:
+                    it.evidence = _json.loads(cached.get("final_evidence") or "[]")
+                except Exception:
+                    it.evidence = []
+                it.status = "Cached"
+                it.error = ""
+                it.date_prefix = cached.get("chosen_date_prefix") or ""
+                it.naming_template = cached.get("naming_template") or ""
+
+                try:
+                    pth = cached.get("final_target_path") or ""
+                    it.planned_target_path = Path(pth) if pth else None
+                except Exception:
+                    it.planned_target_path = None
+
+                it.target_folder = cached.get("final_target_folder") or ""
+                it.extraction_method = cached.get("extraction_method") or ""
+                try:
+                    it.pages_processed = int(cached.get("pages_processed") or 0)
+                except Exception:
+                    it.pages_processed = 0
+
+            else:
+                it = analyze_pdf(p, self.cfg, self.mapper, self.client, self.logger)
+                it.status = "Pending" if it.status == "" else it.status
+
+                try:
+                    self.persist_item_to_db(p, it)
+                except Exception:
+                    pass
+
             items.append(it)
-        self.state.set_items(items)
+
+        self.state.set_items(items, action="DryRun")
         self.refresh_table()
         self.refresh_history()
 
@@ -386,6 +511,79 @@ class MainWindow(QMainWindow):
                 c.setEditable(False)
             self.model.appendRow(row)
         self.table.resizeColumnsToContents()
+
+    def load_initial_items(self):
+        pdfs = list_input_pdfs(self.cfg.paths.input_dir)
+
+        items = []
+        for p in pdfs:
+            # Create a lightweight placeholder item without running OCR/LLM
+            it = self.state.make_placeholder_item(p)
+
+            # Try DB cache
+            try:
+                fp = file_fingerprint_sha256(p)
+            except Exception:
+                fp = ""
+
+            cached = None
+            try:
+                cached = self.db.get_latest_by_fingerprint(fp) if fp else None
+            except Exception:
+                cached = None
+
+            if cached:
+                # Fill from DB (last entry wins)
+                it.sender = cached.get("final_sender_canonical") or ""
+                it.conf_final = float(cached.get("final_confidence") or 0.0)
+                it.document_type = cached.get("final_document_type") or "other"
+                it.filename_label = cached.get("final_filename_label") or "Dokument"
+                it.notes = cached.get("final_notes") or ""
+                it.target_folder = cached.get("final_target_folder") or ""
+                try:
+                    pth = cached.get("final_target_path") or ""
+                    it.planned_target_path = Path(pth) if pth else None
+                except Exception:
+                    it.planned_target_path = None
+
+                # evidence is stored as json text in DB
+                try:
+                    it.evidence = _json.loads(cached.get("final_evidence") or "[]")
+                except Exception:
+                    it.evidence = []
+
+                it.status = "Cached"
+                it.error = ""
+
+                # date_prefix + naming_template from DB
+                it.date_prefix = cached.get("chosen_date_prefix") or ""
+                it.naming_template = cached.get("naming_template") or ""
+
+                # planned_target_path: prefer final_target_path
+                try:
+                    p = cached.get("final_target_path") or ""
+                    it.planned_target_path = Path(p) if p else None
+                except Exception:
+                    it.planned_target_path = None
+
+                # target folder (für UI)
+                it.target_folder = cached.get("final_target_folder") or ""
+
+                it.extraction_method = cached.get("extraction_method") or ""
+                try:
+                    it.pages_processed = int(cached.get("pages_processed") or 0)
+                except Exception:
+                    it.pages_processed = 0
+
+            else:
+                it.status = "Pending"
+                it.error = "Analyze needed"
+
+            items.append(it)
+
+        self.state.set_items(items, action="InitLoad")
+        self.refresh_table()
+        self.refresh_history()
 
     def selected_source_rows(self) -> List[int]:
         sel = self.table.selectionModel().selectedRows()
@@ -541,8 +739,8 @@ class MainWindow(QMainWindow):
         if self.sensitive_mode:
             # cheap "blur": scale down/up (good enough)
             small = pix.scaled(
-                pix.width() // 2,
-                pix.height() // 2,
+                pix.width() // 5,
+                pix.height() // 5,
                 Qt.KeepAspectRatio,
                 Qt.FastTransformation,
             )
@@ -557,20 +755,59 @@ class MainWindow(QMainWindow):
         )
 
     def update_why_panel(self, it):
+        # Show a prominent callout if this item hasn't been analyzed yet
+        needs_analyze = (
+            (it.status == "Pending")
+            and (not (it.sender or "").strip())
+            and (not (it.document_type or "").strip() or it.document_type == "other")
+            and (not (it.evidence or []))
+            and (not (it.notes or "").strip())
+        )
+
+        if needs_analyze:
+            callout = f"""
+            <div style="
+                background:#FFF3CD;
+                border:1px solid #FFEEBA;
+                padding:12px;
+                border-radius:8px;
+                margin-bottom:10px;
+                ">
+                <div style="font-size:16px; font-weight:700; margin-bottom:6px;">
+                    Analyze needed
+                </div>
+                <div style="font-size:13px;">
+                    Für dieses PDF liegen noch keine LLM/OCR-Ergebnisse vor.
+                    Klicke oben auf <b>Dry-Run (Analyze)</b> (oder <b>Full Analyze</b>), um Sender,
+                    Zielordner, Dateiname und Evidence zu erzeugen.
+                </div>
+            </div>
+            """
+        else:
+            callout = ""
+
         ev = "<br>".join([f"• {e}" for e in (it.evidence or [])]) or "(none)"
+        tgt = it.effective_folder() or it.target_folder or "(none)"
+        planned = it.planned_target_path.name if it.planned_target_path else "(none)"
+
         txt = f"""
+        {callout}
+        <b>Status</b>: {it.status}<br>
+        <b>File</b>: {it.original_filename}<br>
         <b>Sender</b>: {it.sender or "(empty)"}<br>
         <b>Confidence</b>: final {it.conf_final:.2f} | stage1 {it.conf_stage1:.2f} | stage2 {it.conf_stage2:.2f} | used stage {it.stage_used}<br>
-        <b>Extraction</b>: {it.extraction_method} (pages: {it.pages_processed})<br>
-        <b>DocType</b>: {it.document_type}<br>
-        <b>Filename label</b>: {it.filename_label}<br>
-        <b>Target folder</b>: {it.effective_folder() or it.target_folder}<br>
-        <b>Mapping match</b>: {it.mapping_match_type} {it.mapping_match_value}<br>
+        <b>Extraction</b>: {it.extraction_method or "(not analyzed)"} (pages: {it.pages_processed})<br>
+        <b>DocType</b>: {it.document_type or "(empty)"}<br>
+        <b>Filename label</b>: {it.filename_label or "(empty)"}<br>
+        <b>Target folder</b>: {tgt}<br>
+        <b>Planned filename</b>: {planned}<br>
+        <b>Mapping match</b>: {it.mapping_match_type or "none"} {it.mapping_match_value or ""}<br>
         <b>LLM target_folder</b>: {it.llm_target_folder or "(none)"} | <b>is_private</b>: {str(it.llm_is_private)}<br>
         <b>Folder reason</b>: {it.llm_folder_reason or "(none)"}<br>
         <b>Evidence</b>:<br>{ev}<br>
         <b>Notes</b>: {it.notes or "(none)"}<br>
         """
+
         self.llm_text.setHtml(txt)
 
 

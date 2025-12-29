@@ -8,6 +8,7 @@ import subprocess
 
 from ..mover import ensure_dir, move_file
 from .types import PlanItem
+from ..pdf_text import choose_date_prefix
 
 
 @dataclass
@@ -34,10 +35,52 @@ class SessionState:
     def _now(self) -> str:
         return dt.datetime.now().isoformat(timespec="seconds")
 
-    def set_items(self, items: List[PlanItem]):
+    def set_items(self, items: List[PlanItem], action: str = "DryRun"):
         self.items = items
         self.history.append(
-            HistoryEntry(self._now(), "DryRun", f"{len(items)} files", "")
+            HistoryEntry(self._now(), action, f"{len(items)} files", "")
+        )
+
+    def make_placeholder_item(self, path: Path) -> PlanItem:
+        """
+        Create a PlanItem with minimal defaults (no OCR/LLM run).
+        Used for initial GUI list and for cached DB restores.
+        """
+
+        try:
+            date_prefix, _src = choose_date_prefix(
+                pdf_path, self.cfg.renaming.date_source_priority
+            )
+        except Exception:
+            date_prefix = ""
+
+        return PlanItem(
+            input_path=path,
+            original_filename=path.name,
+            date_prefix="",
+            naming_template="",
+            sender="",
+            conf_final=0.0,
+            conf_stage1=0.0,
+            conf_stage2=0.0,
+            stage_used=0,
+            document_type="other",
+            filename_label="Dokument",
+            llm_target_folder="",
+            llm_is_private=False,
+            llm_folder_reason="",
+            target_folder="",
+            planned_target_path=None,
+            extraction_method="",
+            pages_processed=0,
+            evidence=[],
+            notes="",
+            mapping_match_type="",
+            mapping_match_value="",
+            status="Pending",
+            error="",
+            edited_folder=None,
+            edited_filename_stem=None,
         )
 
     def accept(self, idxs: List[int]):
@@ -82,6 +125,30 @@ class SessionState:
 
             # If user edited folder/name, rebuild the final target path
             target_path = it.planned_target_path
+
+            folder = it.effective_folder()
+            stem = it.effective_filename_stem()
+
+            if folder and stem:
+                # keep original extension
+                ext = it.input_path.suffix if it.input_path.suffix else ".pdf"
+
+                # keep date_prefix if available, otherwise try to read from planned filename
+                date_prefix = (it.date_prefix or "").strip()
+                if not date_prefix and it.planned_target_path:
+                    # Try parse YYYY-MM-DD prefix from planned filename
+                    parts = it.planned_target_path.stem.split(" ", 1)
+                    if parts and len(parts[0]) == 10:
+                        date_prefix = parts[0]
+
+                # Build base name (no collision handling here; apply can collision-check if you want)
+                if date_prefix:
+                    new_name = f"{date_prefix} {stem}".strip() + ext
+                else:
+                    new_name = f"{stem}".strip() + ext
+
+                target_dir = self.cfg.paths.documents_dir / folder
+                target_path = target_dir / new_name
 
             if dry_run:
                 it.status = "Processed"
