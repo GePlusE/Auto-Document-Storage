@@ -4,6 +4,15 @@
 ## Related
 - Closes #
 
+## Type (required)
+**Select exactly one and add the matching label to the PR:**
+- [ ] feature
+- [ ] bug
+- [ ] docs
+- [ ] chore
+
+> ✅ **Required:** Please add one of these labels to the PR before merging: `feature`, `bug`, `docs`, `chore`.
+
 ## Checklist
 - [ ] I added/updated tests (if applicable)
 - [ ] I updated docs/README (if applicable)

@@ -1,0 +1,36 @@
+name: Require type label
+
+on:
+  pull_request:
+    types: [opened, reopened, synchronize, labeled, unlabeled, edited]
+
+permissions:
+  pull-requests: read
+
+jobs:
+  require-type-label:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check for required type label
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const required = ["feature", "bug", "docs", "chore"];
+            const labels = context.payload.pull_request.labels.map(l => l.name);
+
+            const matches = labels.filter(l => required.includes(l));
+
+            if (matches.length === 0) {
+              core.setFailed(
+                `Missing required PR type label. Add exactly one of: ${required.join(", ")}`
+              );
+            }
+
+            // Optional: enforce EXACTLY one type label
+            if (matches.length > 1) {
+              core.setFailed(
+                `Too many type labels: ${matches.join(", ")}. Please keep exactly ONE of: ${required.join(", ")}`
+              );
+            }
+
+            console.log(`OK: found type label: ${matches[0]}`);
