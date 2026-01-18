@@ -120,6 +120,9 @@ def process_one(
     # Truncate input to LLM
     text_for_llm = extracted_text[: cfg.classification.max_input_chars]
     known_senders = sorted(mapper.mapping.folders.keys())
+    existing_folders = sorted(
+        [d.name for d in cfg.paths.documents_dir.iterdir() if d.is_dir()]
+    )
 
     # Classify
     routed_to_fallback = 0
@@ -145,6 +148,7 @@ def process_one(
             client=client,
             text=text_for_llm,
             known_senders=known_senders,
+            existing_folders=existing_folders,
             model_stage1=model1,
             model_stage2=model2,
             temperature=cfg.classification.temperature,

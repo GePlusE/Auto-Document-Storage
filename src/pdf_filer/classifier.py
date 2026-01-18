@@ -18,13 +18,14 @@ def classify_multi_stage(
     client: OllamaClient,
     text: str,
     known_senders: List[str],
+    existing_folders: List[str],
     model_stage1: str,
     model_stage2: str,
     temperature: float,
     threshold_accept: float,
     require_evidence: bool,
 ) -> ClassificationDecision:
-    prompt = build_prompt(text, known_senders)
+    prompt = build_prompt(text, known_senders, existing_folders)
 
     raw1 = client.generate_json(model_stage1, prompt, temperature=temperature)
     r1 = to_llm_result(raw1, model_stage1)

@@ -38,10 +38,13 @@ def _safe_parse_json(text: str) -> Dict[str, Any]:
         return json.loads(m.group(0))
 
 
-def build_prompt(extracted_text: str, known_senders: List[str]) -> str:
+def build_prompt(
+    extracted_text: str, known_senders: List[str], existing_folders: List[str]
+) -> str:
     # Keep it short and directive; known senders help the model choose canonical names.
     # IMPORTANT: We do NOT include full mapping JSON; we pass only canonical names list.
     ks = "\n".join(f"- {s}" for s in known_senders[:300])  # safety cap
+    efs = "\n".join(f"- {f}" for f in existing_folders[:300])  # safety cap
 
     # Use custom delimiters instead of triple quotes inside the f-string.
     return f"""You are a document classifier.
@@ -63,6 +66,7 @@ def build_prompt(extracted_text: str, known_senders: List[str]) -> str:
         Rules:
         - If uncertain, set confidence < 0.7.
         - Prefer a sender name from Known Senders if it matches.
+        - Prefer an existing folder if the sender name is similar (e.g., "ADAC" over "ADAC e.V." if "ADAC" exists).
         - filename_label must be a short German noun phrase, 1–3 words (e.g. "Rechnung", "Mahnung", "Informationsschreiben", "Vertrag", "Gehaltsabrechnug").
         - Do NOT include dates, invoice numbers, customer numbers, names, addresses, IBAN, or other sensitive data in filename_label.
         - No digits in filename_label. No special characters other than spaces and German letters.
@@ -73,6 +77,9 @@ def build_prompt(extracted_text: str, known_senders: List[str]) -> str:
 
         Known Senders:
         {ks}
+
+        Existing Folders:
+        {efs}
 
         Document Text (may contain OCR noise):
         <<<BEGIN_TEXT

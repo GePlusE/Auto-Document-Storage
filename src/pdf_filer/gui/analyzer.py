@@ -77,6 +77,9 @@ def analyze_pdf(
     text_for_llm = extracted_text[: cfg.classification.max_input_chars]
 
     known_senders = sorted(mapper.mapping.folders.keys())
+    existing_folders = sorted(
+        [d.name for d in cfg.paths.documents_dir.iterdir() if d.is_dir()]
+    )
 
     # LLM classify (multi-stage)
     try:
@@ -84,6 +87,7 @@ def analyze_pdf(
             client=client,
             text=text_for_llm,
             known_senders=known_senders,
+            existing_folders=existing_folders,
             model_stage1=cfg.classification.stage1_model,
             model_stage2=cfg.classification.stage2_model,
             temperature=cfg.classification.temperature,
