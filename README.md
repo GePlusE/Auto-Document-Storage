@@ -14,7 +14,7 @@ It runs fully locally and combines:
 - Processes **all PDFs currently in the input folder** (no state tracking required because files get moved out)
 - Renames PDFs with a date prefix `YYYY-MM-DD` using **file/PDF metadata only** (never from PDF text)
 - Collision handling: appends `_1`, `_2`, ... if a filename already exists in the destination folder
-- Safe fallback folder for uncertain classification (`Dokumente/_Unklar`)
+- Safe fallback folder for uncertain classification (`Dokumente/_Unklar`) 
 - Stores raw model JSON responses (stage1 + stage2 + final) in SQLite for later analysis
 
 ---

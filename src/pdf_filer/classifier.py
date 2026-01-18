@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import List, Optional, Tuple
+from typing import List, Optional
 
 from .llm import OllamaClient, build_prompt, to_llm_result, LLMResult
 

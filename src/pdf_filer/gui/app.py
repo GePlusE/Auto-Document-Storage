@@ -2,7 +2,6 @@ from __future__ import annotations
 
 from pathlib import Path
 from typing import List, Optional
-import math
 import datetime as dt
 import json as _json
 
@@ -31,7 +30,6 @@ from PySide6.QtWidgets import (
     QLabel,
     QSpinBox,
     QSlider,
-    QMessageBox,
     QCheckBox,
     QDockWidget,
     QListWidget,
@@ -765,7 +763,7 @@ class MainWindow(QMainWindow):
         )
 
         if needs_analyze:
-            callout = f"""
+            callout = """
             <div style="
                 background:#FFF3CD;
                 border:1px solid #FFEEBA;

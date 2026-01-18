@@ -2,14 +2,14 @@ changelog:
   categories:
     - title: "Features"
       labels:
-        - "type: feature"
+        - "feature"
     - title: "Fixes"
       labels:
-        - "type: bug"
+        - "bug"
     - title: "Docs & Chores"
       labels:
-        - "type: docs"
-        - "type: chore"
+        - "docs"
+        - "chore"
   exclude:
     labels:
       - "ignore-for-release"

@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from pathlib import Path
-from typing import List, Optional, Dict, Any
+from typing import List
 import datetime as dt
 import subprocess
 
@@ -49,7 +49,7 @@ class SessionState:
 
         try:
             date_prefix, _src = choose_date_prefix(
-                pdf_path, self.cfg.renaming.date_source_priority
+                path, self.cfg.renaming.date_source_priority
             )
         except Exception:
             date_prefix = ""
@@ -57,7 +57,7 @@ class SessionState:
         return PlanItem(
             input_path=path,
             original_filename=path.name,
-            date_prefix="",
+            date_prefix=date_prefix,
             naming_template="",
             sender="",
             conf_final=0.0,

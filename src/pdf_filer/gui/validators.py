@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import re
 from pathlib import Path
-from typing import List, Tuple, Optional
+from typing import List, Tuple
 
 from ..naming import build_base_name, resolve_collision
 

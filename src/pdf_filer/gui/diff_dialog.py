@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-from pathlib import Path
 from typing import List
 
 from PySide6.QtWidgets import (
@@ -10,7 +9,6 @@ from PySide6.QtWidgets import (
     QTableWidgetItem,
     QLabel,
 )
-from PySide6.QtCore import Qt
 
 from .types import PlanItem
 
