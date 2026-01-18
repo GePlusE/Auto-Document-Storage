@@ -1,8 +1,7 @@
 from __future__ import annotations
 
 from pathlib import Path
-from typing import List, Optional, Tuple
-import os
+from typing import List, Optional
 
 from ..pdf_text import extract_textlayer, render_pages, choose_date_prefix
 from ..vision_ocr import ocr_pages_with_vision

@@ -18,7 +18,6 @@ from .pdf_text import (
     render_pages,
     choose_date_prefix,
     get_pdf_metadata_date,
-    get_file_birthtime_date,
 )
 from .vision_ocr import ocr_pages_with_vision
 from .utils import alnum_ratio, redact_sensitive, file_fingerprint_sha256
@@ -62,8 +61,6 @@ def process_one(
     pdf_meta_created_at = pdf_meta_date.isoformat() if pdf_meta_date else None
 
     original_filename = pdf_path.name
-    original_stem = pdf_path.stem
-
     # Fingerprint for caching (stable across rename/path)
     try:
         fingerprint = file_fingerprint_sha256(pdf_path)
@@ -359,7 +356,6 @@ def main():
 
     # GUI command
     if args.cmd == "gui":
-        from .mapping import load_sender_mapping, SenderMapper
         from .llm import OllamaClient
         from .gui.app import run_gui
 

@@ -1,7 +1,6 @@
 from __future__ import annotations
 
-from pathlib import Path
-from typing import Optional, List
+from typing import List
 
 from PySide6.QtCore import Qt
 from PySide6.QtWidgets import (

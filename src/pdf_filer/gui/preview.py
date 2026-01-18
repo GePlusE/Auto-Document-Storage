@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from pathlib import Path
-from typing import List, Tuple
+from typing import List
 
 import fitz  # PyMuPDF
 from PySide6.QtGui import QImage
