@@ -1,0 +1,15 @@
+changelog:
+  categories:
+    - title: "Features"
+      labels:
+        - "type: feature"
+    - title: "Fixes"
+      labels:
+        - "type: bug"
+    - title: "Docs & Chores"
+      labels:
+        - "type: docs"
+        - "type: chore"
+  exclude:
+    labels:
+      - "ignore-for-release"
