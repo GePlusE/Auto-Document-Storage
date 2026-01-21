@@ -8,6 +8,7 @@ It runs fully locally and combines:
 - SQLite logging of model outputs and routing decisions (for later analysis)
 - Daily automation via **launchd** (no cron)
 
+
 ---
 
 ## Features
