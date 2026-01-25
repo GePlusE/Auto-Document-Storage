@@ -15,7 +15,7 @@ jobs:
         uses: actions/github-script@v8
         with:
           script: |
-            const required = ["feature", "bug", "docs", "chore"];
+            const required = ["feature", "bug", "docs", "chore", "dependencies"];
             const labels = context.payload.pull_request.labels.map(l => l.name);
 
             const matches = labels.filter(l => required.includes(l));
